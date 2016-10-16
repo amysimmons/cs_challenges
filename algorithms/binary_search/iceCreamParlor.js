@@ -44,25 +44,59 @@ var input = {
   ]
 }
 
-/*
-whoaaaaa need a break from this
-*/
-var binarySearch = function(array, n, left, right) {
+var binarySearch = function(sortedArray, n, left, right) {
+  var mid = Math.floor((left + right) / 2);
 
-  var midIndex = Math.floor((left + right) / 2);
+  if (left > right) {
+    return mid;
+  }
 
-  if (array[midIndex] == n) {
-    return midIndex;
-  } else if (n < array[midIndex]) {
-    binarySearch(array, n, left, midIndex - 1);
+  if (sortedArray[mid].cost == n) {
+    return mid - 1;
+  } else if (n < sortedArray[mid].cost) {
+    binarySearch(sortedArray, n, left, mid - 1);
   } else {
-    binarySearch(array, n, midIndex + 1, right);
+    binarySearch(sortedArray, n, mid + 1, right);
   }
 }
 
 var whichFlavors = function(input) {
   input.trips.forEach((trip) => {
 
+    trip.icecreams = trip.costOfEachFlavor.map((f, i) => {
+      return {
+        id: i+1,
+        cost: f
+      }
+    });
+
+    trip.icecreams.sort(function(a,b){
+      return a.cost-b.cost;
+    });
+
+    //why the F is upperIndex coming back undefined?!?!?
+    var upperIndex = binarySearch(trip.icecreams, trip.dollars, 0, trip.icecreams.length - 1);
+    console.log(upperIndex);
+
+    var affordableIcecreams = trip.icecreams.slice(0, upperIndex + 1);
+    console.log(affordableIcecreams);
+
+    var pairs = [];
+
+    affordableIcecreams.forEach((i) => {
+      otherIcecreams = affordableIcecreams;
+      otherIcecreams.splice(i,1);
+
+      otherIcecreams.forEach((x) => {
+        if (i.cost + x.cost == trip.dollars) {
+          if(pairs.length == 0) {
+            pairs.push([i.id, x.id]);
+          }
+        }
+      })
+    });
+
+    console.log(pairs);
 
   });
 }
