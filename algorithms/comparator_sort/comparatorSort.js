@@ -49,26 +49,24 @@ var swapPlayers = function(i) {
 	sorted = false;
 }
 
-var inAlphabeticalOrder = function(p1, p2) {
-	if (p1.name <= p2.name) {
-		return true
+var inOrder = function(p1, p2) {
+	if (p1.score < p2.score) {
+		return false;
 	}
-	return false;
+
+	if (p1.score == p2.score && p1.name > p2.name) {
+		return false;
+	}
+
+	return true;
 }
 
 while(!sorted){
 	sorted = true;
 
 	for (var i = 0; i < players.length - 1; i++) {
-		//if the player's score is less than the next one, swap them
-		if (players[i].score < players[i + 1].score) {
-			swapPlayers(i);
-		}
-		//if the player's score is equal to the next one, alphabetically order them
-		if (players[i].score == players[i + 1].score) {
-			if (!inAlphabeticalOrder(players[i], players[i + 1])) {
-				swapPlayers(i);
-			}
+		if (!inOrder(players[i], players[i + 1])) {
+			swapPlayers(i)
 		}
 	}
 }
