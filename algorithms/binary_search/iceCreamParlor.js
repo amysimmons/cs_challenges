@@ -40,54 +40,67 @@ var input = {
       dollars: 4,
       flavors: 4,
       costOfEachFlavor: [2,2,4,3]
+    },
+    {
+      dollars: 5,
+      flavors: 7,
+      costOfEachFlavor: [1.5,7,5,3.5,2.2,1,1]
     }
   ]
 }
 
-var pairs = [];
-
 var binarySearch = function(sortedArray, n, left, right) {
-  var mid = Math.floor((left + right) / 2);
+  var mid = Math.floor((left + right) / 2); //finds the mid point of the array
 
   if (left > right) {
-    return mid;
+    return 'Something went wrong';
   }
 
-  if (sortedArray[mid].cost >= n) {
+  if (sortedArray[mid].cost >= n) { //if the mid point is more than the amount to spend, decrease the range from the right
     binarySearch(sortedArray, n, left, mid - 1);
-  } else {
+  } else { //if the mid point is less than the amount to spend, find the two icecreams that cost the total amount
     var difference = n - sortedArray[mid].cost;
-
-    if(sortedArray[mid].cost + sortedArray[left].cost === n){
-      pairs.push([sortedArray[mid].id, sortedArray[left].id].sort())
-      return pairs
-    } else {
-      binarySearch(sortedArray, n, left + 1, right)
+    if (difference > n) {
+      //check if anything to the right can be paired with the mid cost
+    } else if (difference < n) {
+      //check if anything to the left can be paired with mid cost
     }
-
+    console.log(difference)
+    if(sortedArray[mid].cost + sortedArray[left].cost === n){
+      return [sortedArray[mid].id, sortedArray[left].id].sort();
+    }
+    // else {
+    //   return binarySearch(sortedArray, n, left, mid + 1)
+    // }
   }
 }
 
-var whichFlavors = function(input) {
-  input.trips.forEach((trip) => {
+input.trips.forEach((trip) => {
+  //return if the number of icecreams and provided costs dont match
+  if (trip.flavors != trip.costOfEachFlavor.length){
+    return 'Something went wrong'
+  }
 
-    trip.icecreams = trip.costOfEachFlavor.map((f, i) => {
-      return {
-        id: i+1,
-        cost: f
-      }
-    });
-
-    trip.icecreams.sort(function(a,b){
-      return a.cost-b.cost;
-    });
-
-    binarySearch(trip.icecreams, trip.dollars, 0, trip.icecreams.length - 1);
+  //map the ice cream cost and ids
+  trip.icecreams = trip.costOfEachFlavor.map((f, i) => {
+    return {
+      id: i + 1,
+      cost: f
+    }
   });
-  console.log(pairs);
-}
 
-whichFlavors(input);
+  //sort the icecreams before binary searching
+  trip.icecreams.sort((a,b) => {
+    return a.cost-b.cost;
+  });
+
+  console.log(trip.icecreams)
+
+  //binary search for two icecreams that cost the total dollars for the trip
+  trip.icecreamsToBuy = binarySearch(trip.icecreams, trip.dollars, 0, trip.icecreams.length - 1);
+
+  console.log(trip.icecreamsToBuy)
+});
 
 
 /*
