@@ -58,16 +58,13 @@ var binarySearch = function(sortedArray, n, left, right) {
   } else {
     var difference = n - sortedArray[mid].cost;
 
-    var differenceIndex = sortedArray.findIndex(function(n){
-      return n.cost === difference;
-    });
-
-    if (differenceIndex >= 0) {
-      pairs.push([sortedArray[mid].id, sortedArray[differenceIndex].id].sort());
-      return;
+    if(sortedArray[mid].cost + sortedArray[left].cost === n){
+      pairs.push([sortedArray[mid].id, sortedArray[left].id].sort())
+      return pairs
     } else {
-      binarySearch(sortedArray, n, mid + 1, right);
+      binarySearch(sortedArray, n, left + 1, right)
     }
+
   }
 }
 
