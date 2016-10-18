@@ -49,29 +49,19 @@ var input = {
   ]
 }
 
-var binarySearch = function(sortedArray, n, left, right) {
-  var mid = Math.floor((left + right) / 2); //finds the mid point of the array
+var binarySearch = function(sortedArray, n, left, right){
+  var midIndex = Math.floor((left + right) / 2); //finds the mid point of the array
 
   if (left > right) {
-    return 'Something went wrong';
+    return false;
   }
 
-  if (sortedArray[mid].cost >= n) { //if the mid point is more than the amount to spend, decrease the range from the right
-    binarySearch(sortedArray, n, left, mid - 1);
-  } else { //if the mid point is less than the amount to spend, find the two icecreams that cost the total amount
-    var difference = n - sortedArray[mid].cost;
-    if (difference > n) {
-      //check if anything to the right can be paired with the mid cost
-    } else if (difference < n) {
-      //check if anything to the left can be paired with mid cost
-    }
-    console.log(difference)
-    if(sortedArray[mid].cost + sortedArray[left].cost === n){
-      return [sortedArray[mid].id, sortedArray[left].id].sort();
-    }
-    // else {
-    //   return binarySearch(sortedArray, n, left, mid + 1)
-    // }
+  if (sortedArray[midIndex].cost == n) {
+       return sortedArray[midIndex];
+  } else if (n < sortedArray[midIndex].cost) {
+       return binarySearch(sortedArray, n, left, midIndex - 1);
+  } else {
+       return binarySearch(sortedArray, n, midIndex + 1, right);
   }
 }
 
@@ -94,14 +84,21 @@ input.trips.forEach((trip) => {
     return a.cost-b.cost;
   });
 
-  console.log(trip.icecreams)
+  //find a pair of ice creams that equal the total trip dollars
+  for (var i = 0; i < trip.icecreams.length; i++) {
+    var icecreamA = trip.icecreams[i];
+    var difference = trip.dollars - icecreamA.cost;
+    var icecreamB = binarySearch(trip.icecreams, difference, i + 1, trip.icecreams.length - 1);
 
-  //binary search for two icecreams that cost the total dollars for the trip
-  trip.icecreamsToBuy = binarySearch(trip.icecreams, trip.dollars, 0, trip.icecreams.length - 1);
+    if (icecreamB) {
+      trip.iceCreamsToBuy = [icecreamA.id, icecreamB.id].sort();
+      break;
+    }
+   }
 
-  console.log(trip.icecreamsToBuy)
+  //log out the ids of the icreams that can be bought
+  console.log(trip.iceCreamsToBuy)
 });
-
 
 /*
 Binary search is a log n problem because...
