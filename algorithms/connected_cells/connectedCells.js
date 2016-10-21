@@ -7,43 +7,131 @@ var input = {
 		[0, 0, 1, 0],
 		[1, 0, 0, 0]
 	]
-}
+};
 
+var regionCounts = [];
+
+var sum = 0;
 
 var countRegionCells = function (grid, y, x) {
+	if(grid[y][x] == 0){
+		return
+	}
+
 	var region = [];
 
-		if(grid[y] != undefined) {
-			region.push(
-				grid[y][x],
-				grid[y][x + 1],
-				grid[y][x - 1]
-			)
-		}
+	if (grid[y] != undefined) {
+		region.push(
+			{
+				yPos: y,
+				xPos: x
+			},
+			{
+				yPos: y,
+				xPos: x + 1
+			},
+			{
+				yPos: y,
+				xPos: x - 1
+			}
+		)
+	}
 
-		if(grid[y + 1] != undefined){
-			region.push(
-				grid[y + 1][x],
-				grid[y + 1][x - 1],
-				grid[y + 1][x + 1]
-			)
-		}
+	if (grid[y + 1] != undefined) {
+		region.push(
+			{
+				yPos: y + 1,
+				xPos: x
+			},
+			{
+				yPos: y + 1,
+				xPos: x - 1
+			},
+			{
+				yPos: y + 1,
+				xPos: x + 1
+			}
+		)
+	}
 
-		if(grid[y - 1] != undefined) {
-			region.push(
-				grid[y - 1][x],
-				grid[y - 1][x - 1],
-				grid[y - 1][x + 1]
-			)
-		}
-
-	var sum = 0;
+	if (grid[y - 1] != undefined) {
+		region.push(
+			{
+				yPos: y - 1,
+				xPos: x
+			},
+			{
+				yPos: y - 1,
+				xPos: x - 1
+			},
+			{
+				yPos: y - 1,
+				xPos: x + 1
+			}
+		)
+	}
 
 	region.forEach((cell) => {
-		if (cell != undefined){
-			sum += cell;
+		var cellValue = grid[cell.yPos][cell.xPos] || undefined;
+
+		if (cellValue != undefined && cellValue > 0 && !cell.visited) {
+			sum += cellValue;
+
+			countRegionCells(grid, cell.yPos, cell.xPos);
+
 		}
+
+		cell.visited = true;
+
 	})
 
-	return sum;
+	if(sum > 0){
+		regionCounts.push(sum);
+	}
+
+	return sum
 }
+
+input.values.forEach((row, rowIndex)=> {
+	row.forEach((cell, cellIndex)=>{
+		sum = 0;
+		countRegionCells(input.values, rowIndex, cellIndex);
+	})
+})
+
+console.log(regionCounts)
+
+/*
+Depth-first search (DFS):
+
+Typically a recursive algorithm
+Say you have an initial node
+You want to know if the initial node has a path to another node
+Hey node 'S', do you have a path to node 'T'?
+S will ask its children
+If the first child has a path, it will give the answer
+If the first child doesn't have a path, it will ask its children
+It's called depth first child because we go deep into a node
+before we even ask any of its other children
+We might run really far away, when there could have been a really
+fast connection elsewhere
+
+The trick with DFS is to use an is-visited flag so that you don't
+wind up in an infinite loop.
+
+Breadth-first search (BFS):
+
+Go level by level out.
+First ask S, do you have a path to T.
+S will check if any of its children are T.
+If they aren't they get in line, form a queue.
+
+queue child 1, child 2...
+
+It keeps moving out to the next levels, level by level.
+
+The trick is to use a queue.
+Rather than going recursively you pull out the first element from the queue
+check if it is the element you are looking for, and if not,
+add its children to it.
+*/
