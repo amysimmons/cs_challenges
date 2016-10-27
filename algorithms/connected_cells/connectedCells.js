@@ -102,7 +102,7 @@ input.values.forEach((row, rowIndex)=> {
 console.log(regionCounts)
 
 /*
-Depth-first search (DFS):
+DEPTH FIRST SEARCH (DFS):
 
 Typically a recursive algorithm
 Say you have an initial node
@@ -119,7 +119,35 @@ fast connection elsewhere
 The trick with DFS is to use an is-visited flag so that you don't
 wind up in an infinite loop.
 
-Breadth-first search (BFS):
+
+-map the nodes to ids so they can easily be looked up
+-include a list of the visited ids
+
+
+hasPathDFS(int souce, int destination) {
+	source = getNode(source)
+	destinationn = getNode(destination)
+	visited = []
+	return hasPathFDS(source, destination, visited)
+}
+
+hasPathDFS(source, destination, visited){
+	if (visited.contains(source.id)) {
+		return false;
+	}
+	visited.add(source.id)
+	if (source == destination) {
+		return true
+	}
+	for each node child in source.adjacent { //adjacent is the surrounding celles
+		if hasPathDFS(child, destination, visited) {
+			return true
+		}
+	}
+	return false
+}
+
+BREADTH FIRST SEARCH (BFS):
 
 Go level by level out.
 First ask S, do you have a path to T.
@@ -134,4 +162,37 @@ The trick is to use a queue.
 Rather than going recursively you pull out the first element from the queue
 check if it is the element you are looking for, and if not,
 add its children to it.
+
+-include a list of nodes you need to visit next
+-include a list of visited ids
+-the first node to visit is the source
+
+hasPathBFS(int source, int destination){
+	return hasPathBFS(getNode(source), getNode(destination))
+}
+
+hasPathBFS(source, destination){
+ 	nextToVisit = []
+ 	visited = []
+ 	next.tovisit.add(source)
+ 	while (!nextToVisit.isEmpty()) {
+		node = nextToVisit.remove(); //removes the very first node in the list
+		if (node == destination) { //there is a path
+			return true;
+		}
+
+		if(visited.contains(node.id)) {
+			continue;
+		}
+		visited.add(node.id);
+
+		//queue up the children, adding to the end of the queue
+		//this ensures the children won't be visited immediately,
+		//but will be visited level by level
+		for each node child in node.adjacent {
+			add them to the next to visit list
+		}
+ 	}
+ 	return false
+}
 */
