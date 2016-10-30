@@ -9,97 +9,156 @@ var input = {
 	]
 };
 
-var regionCounts = [];
+var mappedValues = [];
+var visited = [];
+var idCount = 0;
 
-var sum = 0;
-
-var countRegionCells = function (grid, y, x) {
-	if(grid[y][x] == 0){
-		return
-	}
-
-	var region = [];
-
-	if (grid[y] != undefined) {
-		region.push(
+for (var i = 0; i < input.values.length; i++) {
+	var row = [];
+	for (var x = 0; x < input.values[i].length; x++) {
+		row.push(
 			{
-				yPos: y,
-				xPos: x
-			},
-			{
-				yPos: y,
-				xPos: x + 1
-			},
-			{
-				yPos: y,
-				xPos: x - 1
+				xPos: x,
+				yPos: i,
+				id: idCount++,
+				value: input.values[i][x]
 			}
 		)
 	}
-
-	if (grid[y + 1] != undefined) {
-		region.push(
-			{
-				yPos: y + 1,
-				xPos: x
-			},
-			{
-				yPos: y + 1,
-				xPos: x - 1
-			},
-			{
-				yPos: y + 1,
-				xPos: x + 1
-			}
-		)
-	}
-
-	if (grid[y - 1] != undefined) {
-		region.push(
-			{
-				yPos: y - 1,
-				xPos: x
-			},
-			{
-				yPos: y - 1,
-				xPos: x - 1
-			},
-			{
-				yPos: y - 1,
-				xPos: x + 1
-			}
-		)
-	}
-
-	region.forEach((cell) => {
-		var cellValue = grid[cell.yPos][cell.xPos] || undefined;
-
-		if (cellValue != undefined && cellValue > 0 && !cell.visited) {
-			sum += cellValue;
-
-			countRegionCells(grid, cell.yPos, cell.xPos);
-
-		}
-
-		cell.visited = true;
-
-	})
-
-	if(sum > 0){
-		regionCounts.push(sum);
-	}
-
-	return sum
+	mappedValues.push(row);
 }
 
-input.values.forEach((row, rowIndex)=> {
-	row.forEach((cell, cellIndex)=>{
-		sum = 0;
-		countRegionCells(input.values, rowIndex, cellIndex);
-	})
-})
+var getConnectedCells = function(cell) {
+	var connectedCells = [];
+	var y = cell.yPos;
+	var x = cell.xPos;
 
-console.log(regionCounts)
+	connectedCells.push(
+		mappedValues[y][x + 1],
+		mappedValues[y][x - 1]
+	)
+
+	if(y < input.rows) {
+		connectedCells.push(
+			mappedValues[y + 1][x],
+			mappedValues[y + 1][x - 1],
+			mappedValues[y + 1][x + 1]
+		)
+	}
+
+	if(y > 0){
+		connectedCells.push(
+			mappedValues[y - 1][x],
+			mappedValues[y - 1][x - 1],
+			mappedValues[y - 1][x + 1]
+		)
+	}
+
+	return connectedCells.filter(function(cell){
+		return cell != undefined;
+	});
+}
+
+console.log(mappedValues);
+
+var connectedCells = getConnectedCells(mappedValues[0][0])
+
+console.log(connectedCells);
+
+
+
+
+// var regionCounts = [];
+
+// var sum = 0;
+
+// var countRegionCells = function (grid, y, x) {
+// 	if(grid[y][x] == 0){
+// 		return
+// 	}
+
+// 	var region = [];
+
+// 	if (grid[y] != undefined) {
+// 		region.push(
+// 			{
+// 				yPos: y,
+// 				xPos: x
+// 			},
+// 			{
+// 				yPos: y,
+// 				xPos: x + 1
+// 			},
+// 			{
+// 				yPos: y,
+// 				xPos: x - 1
+// 			}
+// 		)
+// 	}
+
+// 	if (grid[y + 1] != undefined) {
+// 		region.push(
+// 			{
+// 				yPos: y + 1,
+// 				xPos: x
+// 			},
+// 			{
+// 				yPos: y + 1,
+// 				xPos: x - 1
+// 			},
+// 			{
+// 				yPos: y + 1,
+// 				xPos: x + 1
+// 			}
+// 		)
+// 	}
+
+// 	if (grid[y - 1] != undefined) {
+// 		region.push(
+// 			{
+// 				yPos: y - 1,
+// 				xPos: x
+// 			},
+// 			{
+// 				yPos: y - 1,
+// 				xPos: x - 1
+// 			},
+// 			{
+// 				yPos: y - 1,
+// 				xPos: x + 1
+// 			}
+// 		)
+// 	}
+
+// 	region.forEach((cell) => {
+// 		var cellValue = grid[cell.yPos][cell.xPos] || undefined;
+
+// 		if (cellValue != undefined && cellValue > 0 && !cell.visited) {
+// 			sum += cellValue;
+
+// 			countRegionCells(grid, cell.yPos, cell.xPos);
+
+// 		}
+
+// 		cell.visited = true;
+
+// 	})
+
+// 	if(sum > 0){
+// 		regionCounts.push(sum);
+// 	}
+
+// 	return sum
+// }
+
+// input.values.forEach((row, rowIndex)=> {
+// 	row.forEach((cell, cellIndex)=>{
+// 		sum = 0;
+// 		countRegionCells(input.values, rowIndex, cellIndex);
+// 	})
+// })
+
+// console.log(regionCounts)
 
 /*
 DEPTH FIRST SEARCH (DFS):
