@@ -1,155 +1,146 @@
-var input = {
-	rows: 4,
-	cols: 4,
-	values: [
-		[1, 1, 0, 0],
-		[0, 1, 1, 0],
-		[0, 0, 1, 0],
-		[1, 0, 0, 0]
-	]
-};
+(function() {
+	var state = {
+		rows: 4,
+		cols: 4,
+		values: [
+			[1, 1, 0, 0],
+			[0, 1, 1, 0],
+			[0, 0, 1, 0],
+			[1, 0, 0, 0]
+		],
+		mappedValues: [],
+		visited: [],
+		idCount: 0,
+		regionCount: 0,
+		maxRegionCount: 0
+	};
 
-var mappedValues = [];
-var idCount = 0;
-
-for (var i = 0; i < input.values.length; i++) {
-	var row = [];
-	for (var x = 0; x < input.values[i].length; x++) {
-		row.push(
-			{
-				xPos: x,
-				yPos: i,
-				id: idCount++,
-				value: input.values[i][x]
+	(function mapValuesToObjects(){
+		for (var i = 0; i < state.values.length; i++) {
+			var row = [];
+			for (var x = 0; x < state.values[i].length; x++) {
+				row.push(
+					{
+						xPos: x,
+						yPos: i,
+						id: state.idCount++,
+						value: state.values[i][x]
+					}
+				)
 			}
-		)
-	}
-	mappedValues.push(row);
-}
+			state.mappedValues.push(row);
+		}
+	})();
 
-var getConnectedCells = function(cell) {
-	var connectedCells = [];
-	var y = cell.yPos;
-	var x = cell.xPos;
+	function getConnectedCells(cell) {
+		var connectedCells = [];
+		var y = cell.yPos;
+		var x = cell.xPos;
 
-	connectedCells.push(
-		mappedValues[y][x + 1],
-		mappedValues[y][x - 1]
-	)
-
-	if(y < input.rows - 1) {
 		connectedCells.push(
-			mappedValues[y + 1][x],
-			mappedValues[y + 1][x - 1],
-			mappedValues[y + 1][x + 1]
+			state.mappedValues[y][x + 1],
+			state.mappedValues[y][x - 1]
 		)
+
+		if(y < state.rows - 1) {
+			connectedCells.push(
+				state.mappedValues[y + 1][x],
+				state.mappedValues[y + 1][x - 1],
+				state.mappedValues[y + 1][x + 1]
+			)
+		}
+
+		if(y > 0){
+			connectedCells.push(
+				state.mappedValues[y - 1][x],
+				state.mappedValues[y - 1][x - 1],
+				state.mappedValues[y - 1][x + 1]
+			)
+		}
+
+		return connectedCells.filter(function(cell){
+			return cell != undefined;
+		});
 	}
 
-	if(y > 0){
-		connectedCells.push(
-			mappedValues[y - 1][x],
-			mappedValues[y - 1][x - 1],
-			mappedValues[y - 1][x + 1]
-		)
+	function depthFirstSearchRegionCount(cell){
+		if (!state.visited.includes(cell.id)) {
+			state.visited.push(cell.id);
+
+			if (cell.value != 0) {
+				state.regionCount++;
+
+				var connectedCells = getConnectedCells(cell);
+
+				if (connectedCells.length > 0) {
+					connectedCells.forEach(function(connectedCell){
+						depthFirstSearchRegionCount(connectedCell);
+					});
+				}
+			}
+		}
+		return state.regionCount;
 	}
 
-	return connectedCells.filter(function(cell){
-		return cell != undefined;
-	});
-}
+	function breadthFirstSearchRegionCount(cell){
+	 	var nextToVisit = []
+	 	nextToVisit.push(cell)
 
-var visited = [];
-var regionCount = 0;
-var regions = [];
-var depthFirstSearch = 0;
+	 	while (nextToVisit.length != 0) {
+			var node = nextToVisit.shift();
 
-var depthFirstSearch = function(cell){
-	hasPathDFSCalled++;
+			if(state.visited.includes(node.id)) {
+				continue;
+			}
 
-	if (!visited.includes(cell.id)) {
-		visited.push(cell.id)
+			state.visited.push(node.id);
 
-		if(cell.value != 0){
-			regionCount++;
+			if(node.value != 0){
+				state.regionCount++;
 
-			var connectedCells = getConnectedCells(cell)
-			if(connectedCells.length > 0) {
+				var connectedCells = getConnectedCells(node);
+
 				connectedCells.forEach(function(connectedCell){
-					depthFirstSearch(connectedCell);
-				})
+					nextToVisit.push(connectedCell);
+				});
 			}
-
-			if(regionCount > 0) {
-				regions.push(regionCount);
-				regionCount = 0;
-			}
-		}
+	 	}
+	 	return state.regionCount
 	}
-}
 
-// mappedValues.forEach(function(row){
-// 	row.forEach(function(cell){
-// 		depthFirstSearch(cell);
-// 	});
-// });
+	function getLargestRegionOfConnectedCells(searchType){
+		state.mappedValues.forEach(function(row){
+			row.forEach(function(cell){
+				var regionCount;
 
-// console.log('largest region of connected cells ', regions.sort(function(a, b){return b - a})[0]);
-// console.log('depthFirstSearch called ', depthFirstSearch, ' times')
+				if(searchType == 'dfs'){
+					regionCount = depthFirstSearchRegionCount(cell);
+				}
 
-var breadthFirstSearchCount = 0;
-var bfsWhileCount = 0;
+				if(searchType == 'bfs'){
+					regionCount = breadthFirstSearchRegionCount(cell);
+				}
 
-var breadthFirstSearch = function(source){
-	breadthFirstSearchCount++;
+				console.log(regionCount, searchType)
 
- 	var nextToVisit = []
- 	var visited = []
+				if (regionCount > state.maxRegionCount) {
+					state.maxRegionCount = regionCount;
+				}
 
- 	nextToVisit.push(source)
+				state.regionCount = 0;
+			});
+		});
+		state.visited = [];
+	};
 
- 	while (nextToVisit.length != 0) {
- 		bfsWhileCount++;
-		var node = nextToVisit.shift();
+	getLargestRegionOfConnectedCells('dfs');
+	console.log('The largest region of connected cells according to getLargestRegionOfConnectedCells is ', state.maxRegionCount);
 
-		if(visited.includes(node.id)) {
-			continue;
-		}
-
-		visited.push(node.id);
-
-		if(node.value != 0){
-			regionCount++;
-
-			var connectedCells = getConnectedCells(node);
-
-			connectedCells.forEach(function(connectedCell){
-				nextToVisit.push(connectedCell);
-			})
-		}
- 	}
-
- 	if(regionCount > 0) {
- 		regions.push(regionCount);
- 		regionCount = 0;
- 	}
-
- 	return false
-}
-
-mappedValues.forEach(function(row){
-	row.forEach(function(cell){
-		breadthFirstSearch(cell);
-	});
-});
-
-console.log('largest region of connected cells ', regions.sort(function(a, b){return b - a})[0]);
-console.log('breadthFirstSearch called', breadthFirstSearchCount, ' times')
-console.log('breadthFirstSearch while loop executed ' + bfsWhileCount + 'times')
-
+	getLargestRegionOfConnectedCells('bfs');
+	console.log('The largest region of connected cells according to getLargestRegionOfConnectedCells is ', state.maxRegionCount);
+})()
 
 /*
-NOTES
-
 DEPTH FIRST SEARCH (DFS):
 
 Typically a recursive algorithm
