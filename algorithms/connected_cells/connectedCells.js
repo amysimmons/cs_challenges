@@ -10,7 +10,6 @@ var input = {
 };
 
 var mappedValues = [];
-var visited = [];
 var idCount = 0;
 
 for (var i = 0; i < input.values.length; i++) {
@@ -38,7 +37,7 @@ var getConnectedCells = function(cell) {
 		mappedValues[y][x - 1]
 	)
 
-	if(y < input.rows) {
+	if(y < input.rows - 1) {
 		connectedCells.push(
 			mappedValues[y + 1][x],
 			mappedValues[y + 1][x - 1],
@@ -59,108 +58,98 @@ var getConnectedCells = function(cell) {
 	});
 }
 
-console.log(mappedValues);
+var visited = [];
+var regionCount = 0;
+var regions = [];
+var depthFirstSearch = 0;
 
-var connectedCells = getConnectedCells(mappedValues[0][0])
+var depthFirstSearch = function(cell){
+	hasPathDFSCalled++;
 
-console.log(connectedCells);
+	if (!visited.includes(cell.id)) {
+		visited.push(cell.id)
 
+		if(cell.value != 0){
+			regionCount++;
 
+			var connectedCells = getConnectedCells(cell)
+			if(connectedCells.length > 0) {
+				connectedCells.forEach(function(connectedCell){
+					depthFirstSearch(connectedCell);
+				})
+			}
 
+			if(regionCount > 0) {
+				regions.push(regionCount);
+				regionCount = 0;
+			}
+		}
+	}
+}
 
-// var regionCounts = [];
+// mappedValues.forEach(function(row){
+// 	row.forEach(function(cell){
+// 		depthFirstSearch(cell);
+// 	});
+// });
 
-// var sum = 0;
+// console.log('largest region of connected cells ', regions.sort(function(a, b){return b - a})[0]);
+// console.log('depthFirstSearch called ', depthFirstSearch, ' times')
 
-// var countRegionCells = function (grid, y, x) {
-// 	if(grid[y][x] == 0){
-// 		return
-// 	}
+var breadthFirstSearchCount = 0;
+var bfsWhileCount = 0;
 
-// 	var region = [];
+var breadthFirstSearch = function(source){
+	breadthFirstSearchCount++;
 
-// 	if (grid[y] != undefined) {
-// 		region.push(
-// 			{
-// 				yPos: y,
-// 				xPos: x
-// 			},
-// 			{
-// 				yPos: y,
-// 				xPos: x + 1
-// 			},
-// 			{
-// 				yPos: y,
-// 				xPos: x - 1
-// 			}
-// 		)
-// 	}
+ 	var nextToVisit = []
+ 	var visited = []
 
-// 	if (grid[y + 1] != undefined) {
-// 		region.push(
-// 			{
-// 				yPos: y + 1,
-// 				xPos: x
-// 			},
-// 			{
-// 				yPos: y + 1,
-// 				xPos: x - 1
-// 			},
-// 			{
-// 				yPos: y + 1,
-// 				xPos: x + 1
-// 			}
-// 		)
-// 	}
+ 	nextToVisit.push(source)
 
-// 	if (grid[y - 1] != undefined) {
-// 		region.push(
-// 			{
-// 				yPos: y - 1,
-// 				xPos: x
-// 			},
-// 			{
-// 				yPos: y - 1,
-// 				xPos: x - 1
-// 			},
-// 			{
-// 				yPos: y - 1,
-// 				xPos: x + 1
-// 			}
-// 		)
-// 	}
+ 	while (nextToVisit.length != 0) {
+ 		bfsWhileCount++;
+		var node = nextToVisit.shift();
 
-// 	region.forEach((cell) => {
-// 		var cellValue = grid[cell.yPos][cell.xPos] || undefined;
+		if(visited.includes(node.id)) {
+			continue;
+		}
 
-// 		if (cellValue != undefined && cellValue > 0 && !cell.visited) {
-// 			sum += cellValue;
+		visited.push(node.id);
 
-// 			countRegionCells(grid, cell.yPos, cell.xPos);
+		if(node.value != 0){
+			regionCount++;
 
-// 		}
+			var connectedCells = getConnectedCells(node);
 
-// 		cell.visited = true;
+			connectedCells.forEach(function(connectedCell){
+				nextToVisit.push(connectedCell);
+			})
+		}
+ 	}
 
-// 	})
+ 	if(regionCount > 0) {
+ 		regions.push(regionCount);
+ 		regionCount = 0;
+ 	}
 
-// 	if(sum > 0){
-// 		regionCounts.push(sum);
-// 	}
+ 	return false
+}
 
-// 	return sum
-// }
+mappedValues.forEach(function(row){
+	row.forEach(function(cell){
+		breadthFirstSearch(cell);
+	});
+});
 
-// input.values.forEach((row, rowIndex)=> {
-// 	row.forEach((cell, cellIndex)=>{
-// 		sum = 0;
-// 		countRegionCells(input.values, rowIndex, cellIndex);
-// 	})
-// })
+console.log('largest region of connected cells ', regions.sort(function(a, b){return b - a})[0]);
+console.log('breadthFirstSearch called', breadthFirstSearchCount, ' times')
+console.log('breadthFirstSearch while loop executed ' + bfsWhileCount + 'times')
 
-// console.log(regionCounts)
 
 /*
+NOTES
+
 DEPTH FIRST SEARCH (DFS):
 
 Typically a recursive algorithm
@@ -170,7 +159,7 @@ Hey node 'S', do you have a path to node 'T'?
 S will ask its children
 If the first child has a path, it will give the answer
 If the first child doesn't have a path, it will ask its children
-It's called depth first child because we go deep into a node
+It's called depth first search because we go deep into a node
 before we even ask any of its other children
 We might run really far away, when there could have been a really
 fast connection elsewhere
