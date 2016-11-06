@@ -13,8 +13,8 @@
 		nodes: [],
 		visited: [],
 		idCount: 0,
-		regionCount: 0,
-		maxRegionCount: 0
+		maxRegionCountDfs: 0,
+		maxRegionCountBfs: 0
 	};
 
 	(function createNodes(){
@@ -75,12 +75,11 @@
 
 			if (cell.value != 0) {
 				regionCount++;
-				console.log(regionCount)
+
 				var connectedCells = getConnectedCells(cell);
 
 				connectedCells.forEach(function(connectedCell){
-					console.log(regionCount, 'inside')
-					depthFirstSearchRegionCount(connectedCell, regionCount);
+					regionCount = depthFirstSearchRegionCount(connectedCell, regionCount);
 				});
 			}
 		}
@@ -118,33 +117,36 @@
 	function getLargestRegionOfConnectedCells(searchType){
 		state.nodes.forEach(function(row){
 			row.forEach(function(cell){
-				var regionCount;
-
 				if(searchType == 'dfs'){
-					regionCount = depthFirstSearchRegionCount(cell, 0);
+					var regionCountDfs = depthFirstSearchRegionCount(cell, 0);
+
+					if (regionCountDfs > state.maxRegionCountDfs) {
+						state.maxRegionCountDfs = regionCountDfs;
+					}
+
+					console.log(regionCountDfs, searchType)
 				}
 
 				if(searchType == 'bfs'){
-					regionCount = breadthFirstSearchRegionCount(cell);
+					var regionCountBfs = breadthFirstSearchRegionCount(cell);
+
+					if (regionCountBfs > state.maxRegionCountBfs) {
+						state.maxRegionCountBfs = regionCountBfs;
+					}
+
+					console.log(regionCountBfs, searchType)
 				}
 
-				console.log(regionCount, searchType)
-
-				if (regionCount > state.maxRegionCount) {
-					state.maxRegionCount = regionCount;
-				}
-
-				state.regionCount = 0;
 			});
 		});
 		state.visited = [];
 	};
 
 	getLargestRegionOfConnectedCells('dfs');
-	console.log('The largest region of connected cells according to getLargestRegionOfConnectedCells is ', state.maxRegionCount);
+	console.log('The largest region of connected cells according to getLargestRegionOfConnectedCells is ', state.maxRegionCountDfs);
 
 	getLargestRegionOfConnectedCells('bfs');
-	console.log('The largest region of connected cells according to getLargestRegionOfConnectedCells is ', state.maxRegionCount);
+	console.log('The largest region of connected cells according to getLargestRegionOfConnectedCells is ', state.maxRegionCountBfs);
 })()
 
 /*
