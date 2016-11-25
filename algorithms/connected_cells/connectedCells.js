@@ -49,16 +49,10 @@
 
 		connectedCells.push(
 			getCell(x + 1, y),
-			getCell(x - 1, y)
-		)
-
-		connectedCells.push(
+			getCell(x - 1, y),
 			getCell(x, y + 1),
 			getCell(x - 1, y + 1),
-			getCell(x + 1, y + 1)
-		)
-
-		connectedCells.push(
+			getCell(x + 1, y + 1),
 			getCell(x, y - 1),
 			getCell(x - 1, y - 1),
 			getCell(x + 1, y - 1)
@@ -94,6 +88,13 @@
 
 	 	while (nextToVisit.length != 0) {
 			var node = nextToVisit.shift();
+
+			/*
+			var node = nextToVisit.pop();
+			mindblown! using pop here instead of shift
+			is essentially DFS. It's what recursion
+			is doing under the hood.
+			*/
 
 			if(state.visited.includes(node.id)) {
 				continue;
