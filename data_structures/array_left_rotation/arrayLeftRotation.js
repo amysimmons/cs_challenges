@@ -1,5 +1,24 @@
 //https://www.hackerrank.com/challenges/ctci-array-left-rotation
 
+(function() {
+	var n = 5;
+	var d = 4;
+	var a = [1,2,3,4,5];
+
+	var rotateLeft = function(array, rotations) {
+		var x = array.shift();
+		array.push(x);
+	};
+
+	var count = 0;
+
+	while(count < d) {
+		rotateLeft(a, d);
+		count++;
+	}
+
+	console.log(a.join(' '));
+})();
 
 /*
 ARRAYS VS RESIZABLE ARRAYS / ARRAY LISTS
